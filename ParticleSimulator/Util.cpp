@@ -4,6 +4,7 @@
 #include <iostream>
 #include <algorithm>
 #include "Particle.h"
+#include "Constraint.h"
 #include <vector>
 
 # define M_PI           (3.14159265358979323846)  /* pi */
@@ -46,4 +47,55 @@ glm::dvec3 elementwiseMax(glm::dvec3 u, glm::dvec3 v) {
 
 glm::dvec3 elementwiseMin(glm::dvec3 u, glm::dvec3 v) {
 	return glm::dvec3(std::min(u.x, v.x), std::min(u.y, v.y), std::min(u.z, v.z));
+}
+
+static void drawCylinder(int n = 10, float h = 2.0, float r = 1.0) {
+	/*
+		Function drw_polygon:
+		Arguments:
+			n - number of sides
+			arg - starting angle (not so important at all)
+			mult - multiplying sides to incrase their length
+			v - cylinder height
+	*/
+
+	double x = 0;
+	double y = 0;
+	double angle = 2 * M_PI / n;
+	glBegin(GL_TRIANGLE_STRIP);
+	for (int i = 0; i <= n; i++) {
+		double tot_angle = angle * i;
+		
+		glVertex3f(cos(tot_angle) * r, sin(tot_angle) * r, 0.0);
+		glVertex3f(cos(tot_angle) * r, sin(tot_angle) * r, h);
+		
+	}
+	glEnd();
+}
+
+
+static void drawCylinderEndpoints(glm::dvec3 u, glm::dvec3 v, float r) {
+
+	glPushMatrix();
+	glm::dvec3 delta = v - u;
+	glm::dvec3 delta_norm = delta / glm::length(delta);
+	double angle = acos(glm::dot(delta_norm, glm::dvec3(0, 0, 1)));
+	glm::dvec3 axis = glm::cross(glm::dvec3(0, 0, 1), delta_norm);
+	glTranslatef(u.x, u.y, u.z);
+	glRotatef(angle / (2 * M_PI) * 360, axis.x, axis.y, axis.z);
+	drawCylinder(10, glm::length(delta), r);
+	glPopMatrix();
+}
+
+
+void drawSpringConstraints(std::vector<SpringConstraint*> &springConstraints) {
+	for (int i = 0; i < springConstraints.size(); i++) {
+		drawCylinderEndpoints(springConstraints[i]->u->pos, springConstraints[i]->v->pos, 0.03);
+	}
+}
+
+void drawHardConstraints(std::vector<HardConstraint*> &hardConstraints) {
+	for (int i = 0; i < hardConstraints.size(); i++) {
+		drawCylinderEndpoints(hardConstraints[i]->u->pos, hardConstraints[i]->v->pos, 0.03);
+	}
 }
