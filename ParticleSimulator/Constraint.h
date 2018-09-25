@@ -5,6 +5,27 @@
 #include "Particle.h"
 #include <vector>
 
+namespace Constraint {
+	class Constraint {
+	public:
+		virtual float eval(float time) = 0;
+	};
+
+	class SinConstraint : public Constraint {
+	public:
+		float amplitude;
+		float frequency;
+		float phase_offset;
+		float base_length;
+
+		SinConstraint(float amplitude, float frequency, float phase_offset, float base_length);
+
+		float eval(float time);
+
+	};
+}
+
+
 //spring constraints
 class SpringConstraint {
 public:
@@ -12,14 +33,13 @@ public:
 	Particle* v;
 	double k;
 	double rest_length;
-	double rest_length_orig;
-	double (*restLengthModifier) (int);
+	Constraint::Constraint* constraint;
 
 	SpringConstraint(Particle* u, Particle* v, double k, double rest_length);
-	static SpringConstraint * SpringConstraintWithModifier(Particle* u, Particle* v, double k, double rest_length, double(*restLengthModifier) (int));
+	static SpringConstraint * SpringConstraintWithModifier(Particle* u, Particle* v, double k, double rest_length, Constraint::Constraint* constraint);
 };
 
-void updateRestLength(SpringConstraint* constraint, double time);
+void updateRestLength(SpringConstraint* constraint, float time);
 
 void applySpringForce(SpringConstraint* constraint);
 
@@ -28,14 +48,14 @@ public:
 	Particle *u;
 	Particle* v;
 	double rest_length;
+	Constraint::Constraint* constraint;
 
-	HardConstraint(Particle *u, Particle *v, double rest_length);
+	HardConstraint(Particle *u, Particle *v, double rest_length, Constraint::Constraint* constraint);
 };
 
 void applyHardConstraint(HardConstraint* constraint);
 
-namespace Constraint {
-	double sinConstraint(int);
-}
+void updateHardConstraints(HardConstraint* constraint, float time);
+
 
 #endif //CONSTRAINT_H

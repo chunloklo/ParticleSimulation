@@ -76,49 +76,91 @@ void startup()
 	a = new Particle(prev_pos, pos);
 	//a->velocity = glm::dvec3(30, 3, 0);
 	*/
-	Particle* temp;
-	temp = Particle::ParticleVel(glm::dvec3(-1.01, 1, -2), glm::dvec3(-100, 0, 0));
-	particles.push_back(temp);
+	//particle* temp;
+	//temp = particle::particlevel(glm::dvec3(-1.01, 1, -2), glm::dvec3(-100, 0, 0));
+	//particles.push_back(temp);
 
-	temp = Particle::ParticleVel(glm::dvec3(1, 1, -2), glm::dvec3(0, 0, 0));
-	particles.push_back(temp);
+	//temp = particle::particlevel(glm::dvec3(1, 1, -2), glm::dvec3(0, 0, 0));
+	//particles.push_back(temp);
 
-	temp = Particle::ParticleVel(glm::dvec3(1, -1, -2), glm::dvec3(0, 0, 0));
-	particles.push_back(temp);
+	//temp = particle::particlevel(glm::dvec3(1, -1, -2), glm::dvec3(0, 0, 0));
+	//particles.push_back(temp);
 
-	temp = Particle::ParticleVel(glm::dvec3(-1, -1, -2), glm::dvec3(0, 0, 0));
-	particles.push_back(temp);
+	//temp = particle::particlevel(glm::dvec3(-1, -1, -2), glm::dvec3(0, 0, 0));
+	//particles.push_back(temp);
 
-	//hard constraint particles
-	temp = Particle::ParticleVel(glm::dvec3(-5, 5, -2), glm::dvec3(0, 0, 0));
-	particles.push_back(temp);
+	////hard constraint particles
+	//temp = particle::particlevel(glm::dvec3(-5, 5, -2), glm::dvec3(0, 0, 0));
+	//particles.push_back(temp);
 
-	temp = Particle::ParticleVel(glm::dvec3(-4, 4, -2), glm::dvec3(0, 0, 0));
-	particles.push_back(temp);
+	//temp = particle::particlevel(glm::dvec3(-4, 4, -2), glm::dvec3(0, 0, 0));
+	//particles.push_back(temp);
 
 	//spring constraints
-	springConstraints.push_back(new SpringConstraint(particles[0], particles[1], 1000, 1));
-	springConstraints.push_back(new SpringConstraint(particles[1], particles[2], 500, 1));
-	springConstraints.push_back(new SpringConstraint(particles[2], particles[3], 500, 1));
-	springConstraints.push_back(new SpringConstraint(particles[3], particles[0], 500, 1));
-	springConstraints.push_back(new SpringConstraint(particles[0], particles[2], 500, 1.414));
+	//springConstraints.push_back(new SpringConstraint(particles[0], particles[1], 1000, 1));
+	//springConstraints.push_back(new SpringConstraint(particles[1], particles[2], 500, 1));
+	//springConstraints.push_back(new SpringConstraint(particles[2], particles[3], 500, 1));
+	//springConstraints.push_back(new SpringConstraint(particles[3], particles[0], 500, 1));
+	//springConstraints.push_back(new SpringConstraint(particles[0], particles[2], 500, 1.414));
+	//springConstraints.push_back(new SpringConstraint(particles[1], particles[3], 500, 1.414));
 
-	springConstraints[0]->restLengthModifier = Constraint::sinConstraint;
+	//springConstraints[0]->restLengthModifier = Constraint::sinConstraint;
 
-	hardConstraints.push_back(new HardConstraint(particles[4], particles[5], 1));
+	//hardConstraints.push_back(new HardConstraint(particles[4], particles[5], 1));
 
-	//6
-	temp = Particle::ParticleVel(glm::dvec3(0, -2, -2), glm::dvec3(0, 0, 0)); particles.push_back(temp);
-	//7
-	temp = Particle::ParticleVel(glm::dvec3(1, -2, -2), glm::dvec3(0, 0, 0)); particles.push_back(temp);
-	//8
-	temp = Particle::ParticleVel(glm::dvec3(.5, -2 + 1.732050 / 2, -2), glm::dvec3(0, 0, 0)); particles.push_back(temp);
+	////6
+	//temp = Particle::ParticleVel(glm::dvec3(0, -2, -2), glm::dvec3(0, 0, 0)); particles.push_back(temp);
+	////7
+	//temp = Particle::ParticleVel(glm::dvec3(1, -2, -2), glm::dvec3(0, 0, 0)); particles.push_back(temp);
+	////8
+	//temp = Particle::ParticleVel(glm::dvec3(.5, -2 + 1.732050 / 2, -2), glm::dvec3(0, 0, 0)); particles.push_back(temp);
 
+	/*
 	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[6], particles[7], 1000, 1, NULL));
 	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[7], particles[8], 1000, 1, NULL));
-	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[8], particles[6], 1000, 1, Constraint::sinConstraint));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[8], particles[6], 1000, 1, new Constraint::SinConstraint(1, .5, 0, 1)));*/
+
+	//Hexagon
+	particles.push_back(Particle::ParticleVel(glm::dvec3(0, 0, -2), glm::dvec3(0, 0, 0)));
+	particles.push_back(Particle::ParticleVel(glm::dvec3(1, 0, -2), glm::dvec3(0, 0, 0)));
+	particles.push_back(Particle::ParticleVel(glm::dvec3(1.5, 1.73 / 2, -2), glm::dvec3(0, 0, 0)));
+	particles.push_back(Particle::ParticleVel(glm::dvec3(1, 1.73, -2), glm::dvec3(0, 0, 0)));
+	particles.push_back(Particle::ParticleVel(glm::dvec3(0, 1.73, -2), glm::dvec3(0, 0, 0)));
+	particles.push_back(Particle::ParticleVel(glm::dvec3(-1 * .5, 1.73 / 2, -2), glm::dvec3(0, 0, 0)));
+	particles.push_back(Particle::ParticleVel(glm::dvec3(.5, 1.73 / 2, -2), glm::dvec3(0, 0, 0)));
+
+	//circle around outside 0 - 5
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[0], particles[1], 10000, 1, /*new Constraint::SinConstraint(2, .1, -1 * 2 * M_PI * 3 / 3, 2)*/ NULL));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[1], particles[2], 10000, 1, new Constraint::SinConstraint(1, .2, -1 * 2*M_PI / 4, 2)));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[2], particles[3], 10000, 1, new Constraint::SinConstraint(1, .2, -1 * 2*M_PI  / 4, 2)));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[3], particles[4], 10000, 1, /*new Constraint::SinConstraint(2, .1, -1 * 2*M_PI  / 4, 2)*/NULL));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[4], particles[5], 10000, 1, /*new Constraint::SinConstraint(2, .1, -1 * 2*M_PI * 2 / 3, 2)*/NULL));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[5], particles[0], 10000, 1, /*new Constraint::SinConstraint(2, .1, -1 * 2 * M_PI * 3 / 3, 2)*/NULL));
+
+	//spokes 6 - 11
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[0], particles[6], 10000, 1, /*new Constraint::SinConstraint(2, .1, -1 * 2 * M_PI * 3 / 3, 2)*/NULL));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[1], particles[6], 10000, 1, /*new Constraint::SinConstraint(2, .1, -1 * 2 * M_PI * 3 / 3, 2)*/NULL));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[2], particles[6], 10000, 1, new Constraint::SinConstraint(1, .2, -1 *  2 * M_PI / 4, 2)));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[3], particles[6], 10000, 1, /*new Constraint::SinConstraint(2, .1, -1 * 2 *M_PI /  4, 2)*/NULL));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[4], particles[6], 10000, 1, /*new Constraint::SinConstraint(2, .1, -1 * 2 *M_PI * 2 / 3, 2)*/NULL));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[5], particles[6], 10000, 1, /*new Constraint::SinConstraint(2, .1, -1 * 2 *M_PI * 2 / 3, 2)*/NULL));
+
+	//789
+	particles.push_back(Particle::ParticleVel(glm::dvec3(-1, 0, -2), glm::dvec3(0, 0, 0)));
+	particles.push_back(Particle::ParticleVel(glm::dvec3(-2, 0, -2), glm::dvec3(0, 0, 0)));
+	particles.push_back(Particle::ParticleVel(glm::dvec3(-1.5, 1.73 / 2, -2), glm::dvec3(0, 0, 0)));
+
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[7], particles[8], 1000, 1, NULL));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[8], particles[9], 1000, 1, NULL));
+	springConstraints.push_back(SpringConstraint::SpringConstraintWithModifier(particles[9], particles[7], 1000, 1, NULL));
 
 
+	//particles.push_back(Particle::ParticleVel(glm::dvec3(-1, 0, -2), glm::dvec3(0, 0, 0)));
+	//particles.push_back(Particle::ParticleVel(glm::dvec3(-2, 0, -2), glm::dvec3(0, 0, 0)));
+	//particles.push_back(Particle::ParticleVel(glm::dvec3(-1.5, 1.73 / 2, -2), glm::dvec3(0, 0, 0)));
+	//hardConstraints.push_back(new HardConstraint(particles[0], particles[1], 1, new Constraint::SinConstraint(1, .3, -1 * M_PI / 2, 2)));
+	//hardConstraints.push_back(new HardConstraint(particles[1], particles[2], 1, NULL));
+	//hardConstraints.push_back(new HardConstraint(particles[2], particles[0], 1, new Constraint::SinConstraint(1, .3, -1 * M_PI / 2, 2)));
 
 }
 
@@ -139,15 +181,49 @@ void simulate()
 	//oldTimeSinceStart = timeSinceStart;
 	//delta_t /= 1000;
 	
+	//activation
+	int count = (int) floor(timeSinceStart / 1000 / 5);
+	int spoke = 6 + ((count + 2) % 6);
+	delete springConstraints[6 + ((count + 1) % 6)]->constraint;
+	springConstraints[6 + ((count + 1) % 6)]->constraint = NULL;
+	if (springConstraints[spoke]->constraint == NULL) {
+		springConstraints[spoke]->constraint = new Constraint::SinConstraint(1, .2, -1 * 2 * M_PI / 4, 2);
+	}
+	printf("%i\n", count);
+
+	//
+
+	int prevWheel = ((count + 0) % 6);
+	int wheel0 = ((count + 1) % 6);
+	int wheel1 = ((count + 2) % 6);
+
+	delete springConstraints[prevWheel]->constraint;
+	springConstraints[prevWheel]->constraint = NULL;
+	if (springConstraints[wheel0]->constraint == NULL) {
+		springConstraints[wheel0]->constraint = new Constraint::SinConstraint(1, .2, -1 * 2 * M_PI / 4, 2);
+	}
+	if (springConstraints[wheel1]->constraint == NULL) {
+		springConstraints[wheel1]->constraint = new Constraint::SinConstraint(1, .2, -1 * 2 * M_PI / 4, 2);
+	}
+
+
+
+
+
 
 	//gravity
 	for (int i = 0; i < particles.size(); i++) {
-		particles[i]->force.y = -9.8 * particles[i]->mass;
+		particles[i]->force.y = -90.8 * particles[i]->mass;
 	}
 
 	//update spring rest_lengths
 	for (int i = 0; i < springConstraints.size(); i++) {
-		updateRestLength(springConstraints[i], timeSinceStart);
+		updateRestLength(springConstraints[i], timeSinceStart / 1000);
+	}
+
+	//update hard_constraints
+	for (int i = 0; i < hardConstraints.size(); i++) {
+		updateHardConstraints(hardConstraints[i], timeSinceStart / 1000);
 	}
 
 	//spring force
@@ -165,8 +241,8 @@ void simulate()
 	//friction
 	for (int i = 0; i < particles.size(); i++) {
 		Particle *particle = particles[i];
-		if (particle->pos.y - epsilon <= -2) {
-			particle->force += (particle->velocity * friction_factor);
+		if (particle->pos.y - epsilon <= 0) {
+			particle->force.x += (particle->velocity.x * friction_factor);
 		}
 		
 		//from 1 - 10
@@ -184,10 +260,10 @@ void simulate()
 		for (int i = 0; i < particles.size(); i++) {
 			Particle *particle = particles[i];
 			//bottom and left
-			glm::dvec3 posNew = elementwiseMax(glm::dvec3(-8, -2, -8), particle->pos);
+			glm::dvec3 posNew = elementwiseMax(glm::dvec3(-8, 0, -8), particle->pos);
 
 			//top and right
-			posNew = elementwiseMin(glm::dvec3(8, 8, 8), posNew);
+			posNew = elementwiseMin(glm::dvec3(64, 8, 8), posNew);
 
 			if (particle->pos != posNew) {
 				particle->pos = posNew;

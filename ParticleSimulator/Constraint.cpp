@@ -2,14 +2,15 @@
 #include <glm/glm.hpp>
 
 //either- between particles, hard environmental constraints, or
+# define M_PI           (3.14159265358979323846)  /* pi */
 
 SpringConstraint::SpringConstraint(Particle * u, Particle * v, double k, double rest_length)
-	: u(u), v(v), k(k), rest_length(rest_length), rest_length_orig(rest_length), restLengthModifier(NULL) {};
+	: u(u), v(v), k(k), rest_length(rest_length), constraint(NULL) {};
 
-SpringConstraint* SpringConstraint::SpringConstraintWithModifier(Particle* u, Particle* v, double k, double rest_length, double(*restLengthModifier) (int)) {
-	SpringConstraint* constraint = new SpringConstraint(u, v, k, rest_length);
-	constraint->restLengthModifier = restLengthModifier;
-	return constraint;
+SpringConstraint* SpringConstraint::SpringConstraintWithModifier(Particle* u, Particle* v, double k, double rest_length, Constraint::Constraint* constraint) {
+	SpringConstraint* springConstraint = new SpringConstraint(u, v, k, rest_length);
+	springConstraint->constraint = constraint;
+	return springConstraint;
 }
 
 void applySpringForce(SpringConstraint* constraint) {
@@ -24,15 +25,16 @@ void applySpringForce(SpringConstraint* constraint) {
 }
 
 
-void updateRestLength(SpringConstraint* constraint, double time) {
-	if (constraint->restLengthModifier != NULL) {
-		constraint->rest_length = constraint->rest_length_orig * constraint->restLengthModifier(time);
+void updateRestLength(SpringConstraint* constraint, float time) {
+	if (constraint->constraint != NULL) {
+		//printf("%f\n", constraint->constraint->eval(time));
+		constraint->rest_length = constraint->constraint->eval(time);
 	}
 	
 }
 
-HardConstraint::HardConstraint(Particle * u, Particle * v, double rest_length)
-	: u(u), v(v), rest_length(rest_length) {};
+HardConstraint::HardConstraint(Particle * u, Particle * v, double rest_length, Constraint::Constraint* constraint)
+	: u(u), v(v), rest_length(rest_length), constraint(constraint) {};
 
 void applyHardConstraint(HardConstraint* constraint) {
 	Particle *a = constraint->u;
@@ -44,6 +46,36 @@ void applyHardConstraint(HardConstraint* constraint) {
 	b->pos -= (delta / deltalength) * 0.5 * diff;
 }
 
-double Constraint::sinConstraint(int x) {
-	return ((sin(x / 1000.0) * .5 + .5) + .2);
+void updateHardConstraints(HardConstraint* constraint, float time) {
+	if (constraint->constraint != NULL) {
+		//printf("%f\n", constraint->constraint->eval(time));
+		constraint->rest_length = constraint->constraint->eval(time);
+	}
 }
+
+
+namespace Constraint {
+	SinConstraint::SinConstraint(float amplitude, float frequency, float phase_offset, float base_length)
+		: amplitude(amplitude), frequency(frequency), phase_offset(phase_offset), base_length(base_length) {};
+	float SinConstraint::eval(float time) {
+		return amplitude * sin(2 * M_PI * frequency * time + phase_offset) + base_length;
+	}
+}
+
+
+//change to floating point parameter input (seconds)
+//double Constraint::sinConstraint(int x) {
+//	//return exp((x % 1000) / 1000.0);
+//	return ((sin(x / 1000.0) * .5 + 1.5) + .2);
+//}
+//
+//double Constraint::sinConstraint0(int x) {
+//	//return exp((x % 1000) / 1000.0);
+//	x += M_PI * 500;
+//	return ((sin(x/ 1000.0) * .5 + 1.5) + .2);
+//}
+//
+//double Constraint::sinConstraint1(int x) {
+//	x += M_PI * 200;
+//	return ((sin(x / 1000.0) * .5 + .5) + .2);
+//}
