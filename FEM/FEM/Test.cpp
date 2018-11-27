@@ -4,13 +4,14 @@
 #include <iostream>
 
 #include "Point.h"
+#include "FEMProcedure.h"
 
 #include <glm/glm.hpp>
 #include <vector>
 
 using namespace std;
 
-void readTestData(vector<Point> &refVector, vector<Point> &pointVector, vector<Element> &eleVector) {
+void readTestData(vector<Point> &refVector, vector<Point> &pointVector, vector<Element> &eleVector, double *dampFactor) {
 	ifstream infile("./testData.txt");
 	string line;
 
@@ -22,6 +23,11 @@ void readTestData(vector<Point> &refVector, vector<Point> &pointVector, vector<E
 
 	Element *eleArr = new Element[100];
 	int eleArrSize = 0;
+
+	double dampInput;
+
+	double kInput;
+	double nuInput;
 
 	while (getline(infile, line))
 	{
@@ -73,11 +79,34 @@ void readTestData(vector<Point> &refVector, vector<Point> &pointVector, vector<E
 				eleArr[eleArrSize].i = i;
 				eleArr[eleArrSize].j = j;
 				eleArr[eleArrSize].k = k;
+
+				double mu = calculateMu(kInput, nuInput);
+				double lambda = calculateLambda(kInput, nuInput);
+				eleArr[eleArrSize].mu = mu;
+				eleArr[eleArrSize].lambda = lambda;
+
 				eleArrSize++;
+			}
+
+			if (line.compare("damp") == 0) {
+				getline(iss, line, ' ');
+				dampInput = strtof(line.c_str(), 0);
+			}
+
+			if (line.compare("k") == 0) {
+				getline(iss, line, ' ');
+				kInput = strtof(line.c_str(), 0);
+			}
+
+			if (line.compare("nu") == 0) {
+				getline(iss, line, ' ');
+				nuInput = strtof(line.c_str(), 0);
 			}
 
 		}
 	}
+
+	assert(pointArrSize == refArrSize);
 
 	for (int i = 0; i < refArrSize; i++) {
 		refVector.push_back(refArr[i]);
@@ -91,12 +120,7 @@ void readTestData(vector<Point> &refVector, vector<Point> &pointVector, vector<E
 		eleVector.push_back(eleArr[i]);
 	}
 
+	*dampFactor = dampInput;
 }
-
-
-void test() {
-}
-
-
 
 

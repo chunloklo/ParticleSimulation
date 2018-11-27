@@ -1,4 +1,3 @@
-//Jeff Chastine
 #include <Windows.h>
 #include <GL\glew.h>
 #include <GL\freeglut.h>
@@ -11,8 +10,18 @@
 #include "Point.h"
 #include "Util.h"
 #include "FEMProcedure.h"
+#include "Integrator.h"
+#include "Force.h"
+
+#include "TestEigen.h"
 
 using namespace std;
+
+
+glm::dvec2 camPosition = dvec2(0, 0);
+double scale = 5;
+double scaleSpeed = 1;
+double speed = 1;
 
 void changeViewPort(int w, int h)
 {
@@ -33,11 +42,41 @@ void changeViewPort(int w, int h)
 
 	// Set the correct perspective.
 	gluPerspective(90, ratio, 1, 10000000);
-	gluLookAt(0.0f, 0.0f, 5.0f,
-		0.0f, 0.0f, 0.0f,
+	//gluOrtho2D(-10.0, 10.0, -10.0, 10.0);
+	gluLookAt(camPosition.x, camPosition.y, scale,
+		camPosition.x, camPosition.y, 0.0f,
 		0.0f, 1.0f, 0.0f);
-	// Get Back to the Modelview
 	glMatrixMode(GL_MODELVIEW);
+	// Get Back to the Modelview
+}
+
+void processNormalKeys(unsigned char key, int x, int y) {
+
+	if (key == 'w') {
+
+		camPosition.y += speed;
+	}
+	else if (key == 'a') {
+
+		camPosition.x -= speed;
+	}
+	else if (key == 's') {
+
+		camPosition.y -= speed;
+	}
+	else if (key == 'd') {
+
+		camPosition.x += speed;
+	}
+	else if (key == 'q') {
+
+		scale += scaleSpeed;
+	}
+	else if (key == 'e') {
+
+		scale -= scaleSpeed;
+	}
+	changeViewPort(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 }
 
 vector<Point> refVector;
@@ -47,10 +86,37 @@ vector<dmat2> referenceInv;
 vector<double> undeformedVol;
 vector<dvec2> forceVector;
 
+double delta_t = 0.001;
+
+double dampFactor;
+dvec2 gravity = dvec2(0, -.7);
+
 
 void simulate()
 {
 	computeElasticForces(forceVector, pointVector, eleVector, referenceInv, undeformedVol);
+	//applyAcceleration(pointVector, forceVector, gravity);
+	forceDamp(pointVector, forceVector, dampFactor);
+	for (size_t i = 0; i < pointVector.size(); i++) {
+		if (pointVector[i].pos.y < 0) {
+			if (pointVector[i].vel.y < 0) {
+				pointVector[i].vel.y = 0;
+			}
+		}
+	}
+
+	implicitEuler(pointVector,
+		referenceInv, undeformedVol,
+		eleVector, delta_t);
+
+	eulerForward(pointVector,forceVector, delta_t);
+	for (size_t i = 0; i < pointVector.size(); i++) {
+		printf("Point %i, x %f, y %f\n", i, pointVector[i].pos.x, pointVector[i].pos.y);
+	}
+
+
+
+	//constraint solving for ground
 }
 
 void render()
@@ -60,16 +126,21 @@ void render()
 	// Reset transformations
 	glLoadIdentity();
 
-	simulate();
+	int num_simulate = 64;
+
+	for (int i = 0; i < num_simulate; i++) {
+		simulate();
+	}
+
 
 	//draw points
 	for (size_t i = 0; i < pointVector.size(); i++) {
-		drawSphere(pointVector[i].pos.x, pointVector[i].pos.y, -1, .05);
+		drawSphere(pointVector[i].pos.x, pointVector[i].pos.y, 0, .05);
 	}
 	glColor3f(0.0f, 1.0f, 0.0f);
 	//draw points
 	for (size_t i = 0; i < refVector.size(); i++) {
-		drawSphere(refVector[i].pos.x, refVector[i].pos.y, -1, .05);
+		drawSphere(refVector[i].pos.x, refVector[i].pos.y, 0, .05);
 	}
 	glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -79,9 +150,9 @@ void render()
 		Point p2 = pointVector[eleVector[i].j];
 		Point p3 = pointVector[eleVector[i].k];
 
-		dvec3 pos1 = dvec3(p1.pos.x, p1.pos.y, -1);
-		dvec3 pos2 = dvec3(p2.pos.x, p2.pos.y, -1);
-		dvec3 pos3 = dvec3(p3.pos.x, p3.pos.y, -1);
+		dvec3 pos1 = dvec3(p1.pos.x, p1.pos.y,  0);
+		dvec3 pos2 = dvec3(p2.pos.x, p2.pos.y,  0);
+		dvec3 pos3 = dvec3(p3.pos.x, p3.pos.y,  0);
 
 		drawLineEndpoints(pos1, pos2);
 		drawLineEndpoints(pos2, pos3);
@@ -89,10 +160,9 @@ void render()
 	}
 
 	//draw forces
-	glColor3f(1.0f, 1.0f, 0.0f);
-	printf("%f, %f\n", forceVector[2].x, forceVector[2].y);
+	glColor3f(1.0f, 0.0f, 1.0f);
 	for (size_t i = 0; i < forceVector.size(); i++) {
-		dvec3 start = dvec3(pointVector[i].pos.x, pointVector[i].pos.y, -1);
+		dvec3 start = dvec3(pointVector[i].pos.x, pointVector[i].pos.y, 0);
 		dvec3 end = start + dvec3(forceVector[i].x, forceVector[i].y, 0);
 		drawLineEndpoints(start, end);
 	}
@@ -101,6 +171,9 @@ void render()
 	glutSwapBuffers();
 }
 int main(int argc, char* argv[]) {
+
+	//testingEigen();
+	//return 0;
 
 	// Initialize GLUT
 	glutInit(&argc, argv);
@@ -113,6 +186,7 @@ int main(int argc, char* argv[]) {
 	glutCreateWindow("Particle Simulator View");
 	// Bind the two functions (above) to respond when necessary
 	glutReshapeFunc(changeViewPort);
+	glutKeyboardFunc(processNormalKeys);
 	glutDisplayFunc(render);
 	glutIdleFunc(render);
 
@@ -124,10 +198,12 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	readTestData(refVector, pointVector, eleVector);
+	readTestData(refVector, pointVector, eleVector, &dampFactor);
+
 	precomputation(refVector, eleVector, referenceInv, undeformedVol);
 	for (size_t i = 0; i < pointVector.size(); i++) {
 		forceVector.push_back(dvec2(0));
+		pointVector[i].vel = vec2(0, 0);
 	}
 
 

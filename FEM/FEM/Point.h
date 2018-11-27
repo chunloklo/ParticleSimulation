@@ -3,11 +3,14 @@
 
 using namespace glm;
 struct Point {
-	vec2 pos;
+	dvec2 pos;
+	dvec2 vel;
 };
 
 struct Element {
 	int i;
 	int j;
 	int k;
+	double mu;
+	double lambda;
 };

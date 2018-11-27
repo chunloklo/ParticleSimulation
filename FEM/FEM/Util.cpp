@@ -106,3 +106,7 @@ void drawLineEndpoints(glm::dvec3 u, glm::dvec3 v) {
 //		drawCylinderEndpoints(hardConstraints[i]->u->pos, hardConstraints[i]->v->pos, 0.03);
 //	}
 //}
+
+void print2x2Matrix(glm::dmat2 mat) {
+	printf("[[%f , %f],\n [%f, %f]]\n", mat[0][0], mat[1][0], mat[0][1], mat[1][1]);
+}

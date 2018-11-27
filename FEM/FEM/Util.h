@@ -21,3 +21,4 @@ void drawLineEndpoints(glm::dvec3 u, glm::dvec3 v);
 //void drawSpringConstraints(std::vector<SpringConstraint*> &springConstraints);
 //void drawHardConstraints(std::vector<HardConstraint*> &hardConstraints);
 
+void print2x2Matrix(glm::dmat2 mat);

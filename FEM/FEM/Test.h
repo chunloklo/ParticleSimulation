@@ -4,4 +4,4 @@
 
 using namespace std;
 void test();
-void readTestData(vector<Point> &refVector, vector<Point> &pointVector, vector<Element> &eleVector);
+void readTestData(vector<Point> &refVector, vector<Point> &pointVector, vector<Element> &eleVector, double *dampFactor);
