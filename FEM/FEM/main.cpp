@@ -86,19 +86,20 @@ vector<dmat2> referenceInv;
 vector<double> undeformedVol;
 vector<dvec2> forceVector;
 
-double delta_t = 0.001;
+double delta_t = .05;
 
 double dampFactor;
-dvec2 gravity = dvec2(0, -.7);
+dvec2 gravity = dvec2(0, -.5);
 
+int counter = 0;
 
 void simulate()
 {
 	computeElasticForces(forceVector, pointVector, eleVector, referenceInv, undeformedVol);
-	//applyAcceleration(pointVector, forceVector, gravity);
-	forceDamp(pointVector, forceVector, dampFactor);
+	double ground = -1;
 	for (size_t i = 0; i < pointVector.size(); i++) {
-		if (pointVector[i].pos.y < 0) {
+		if (pointVector[i].pos.y < ground) {
+			pointVector[i].pos.y = ground;
 			if (pointVector[i].vel.y < 0) {
 				pointVector[i].vel.y = 0;
 			}
@@ -109,10 +110,15 @@ void simulate()
 		referenceInv, undeformedVol,
 		eleVector, delta_t);
 
-	eulerForward(pointVector,forceVector, delta_t);
-	for (size_t i = 0; i < pointVector.size(); i++) {
-		printf("Point %i, x %f, y %f\n", i, pointVector[i].pos.x, pointVector[i].pos.y);
-	}
+	//applyAcceleration(pointVector, forceVector, gravity);
+	//forceDamp(pointVector, forceVector, dampFactor);
+
+	//printf("count: %d\n", counter++);
+	//eulerForward(pointVector,forceVector, delta_t);
+	//for (size_t i = 0; i < pointVector.size(); i++) {
+	//	printf("Point %i, x %f, y %f\n", i, pointVector[i].pos.x, pointVector[i].pos.y);
+	//	printf("Velocity %i, x %f, y %f\n", i, pointVector[i].vel.x, pointVector[i].vel.y);
+	//}
 
 
 
@@ -126,11 +132,13 @@ void render()
 	// Reset transformations
 	glLoadIdentity();
 
-	int num_simulate = 64;
+	int num_simulate = 1;
 
 	for (int i = 0; i < num_simulate; i++) {
 		simulate();
 	}
+	//while (true) {
+	//}
 
 
 	//draw points

@@ -22,6 +22,6 @@ void computeForceDifferentials(VectorXd &pointVector,
 
 
 void computeElasticForcesEigen(VectorXd &forceVector, VectorXd &pointVector, vector<Element> &eleVector, vector<dmat2> &referenceInv, vector<double> &undeformedVol);
-void AsecondTerm(VectorXd &lhs, const VectorXd &rhs, MatrixXd &M, double delta_t);
+void AddSecondTerm(VectorXd &lhs, const VectorXd &rhs, MatrixXd &M, double delta_t);
 
 void test(vector<Element> &eleVector);

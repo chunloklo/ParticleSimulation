@@ -8,8 +8,12 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include "Config.h"
 
 using namespace std;
+
+double config::gamma = 0;
+double config::gravity = 0;
 
 void readTestData(vector<Point> &refVector, vector<Point> &pointVector, vector<Element> &eleVector, double *dampFactor) {
 	ifstream infile("./testData.txt");
@@ -101,6 +105,18 @@ void readTestData(vector<Point> &refVector, vector<Point> &pointVector, vector<E
 			if (line.compare("nu") == 0) {
 				getline(iss, line, ' ');
 				nuInput = strtof(line.c_str(), 0);
+			}
+
+			if (line.compare("gamma") == 0) {
+				getline(iss, line, ' ');
+				config::gamma = strtof(line.c_str(), 0);
+
+			}
+
+			if (line.compare("gravity") == 0) {
+				getline(iss, line, ' ');
+				config::gravity = strtof(line.c_str(), 0);
+
 			}
 
 		}

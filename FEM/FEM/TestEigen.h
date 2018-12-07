@@ -12,6 +12,7 @@
 #include <Eigen/Dense>
 #include <Eigen/IterativeLinearSolvers>
 #include <unsupported/Eigen/IterativeSolvers>
+#include "Config.h"
 
 
 class MatrixReplacement;
@@ -100,10 +101,11 @@ namespace Eigen {
 				//for (Index i = 0; i < lhs.cols(); ++i)
 				//	dst += rhs(i) * lhs.my_matrix().col(i);
 				//dst.noalias() += (lhs.my_matrix() + lhs.my_matrix()) * rhs;
-				computeForceDifferentials(*(lhs._pointVector), rhs, dst, *(lhs._eleVector), *(lhs._referenceInv), *(lhs._undeformedVol));
+				computeForceDifferentials(*(lhs._pointVector), -1 * rhs, dst, *(lhs._eleVector), *(lhs._referenceInv), *(lhs._undeformedVol));
 				//parameterize gamma
-				dst *= (1.0 + 1.0 / lhs._delta_t);
-				AsecondTerm(dst, rhs, *(lhs._massMatrix), lhs._delta_t);
+
+				dst *= (1.0 + config::gamma / lhs._delta_t);
+				AddSecondTerm(dst, rhs, *(lhs._massMatrix), lhs._delta_t);
 			}
 		};
 	}

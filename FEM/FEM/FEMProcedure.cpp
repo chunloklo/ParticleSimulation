@@ -5,6 +5,8 @@
 #include <vector>
 #include "Util.h"
 #include "FEMProcedure.h"
+#include <iostream>
+#include "Config.h"
 
 using namespace std;
 using namespace glm;
@@ -22,6 +24,7 @@ void precomputation(vector<Point> &pointVector, vector<Element> &eleVector, vect
 		dmat2 reference = dmat2();
 		reference[0] = p1.pos - p3.pos;
 		reference[1] = p2.pos - p3.pos;
+
 		referenceInv.push_back(inverse(reference));
 		undeformedVol.push_back(abs(1 / 2.0f * determinant(reference)));
 	}
@@ -70,19 +73,29 @@ void computeElasticForces(vector<dvec2> &forceVector, vector<Point> &pointVector
 
 double calculateMu(double k, double nu) {
 	return k / (2 * (1 + nu));
+	//return 1;
 }
 
 double calculateLambda(double k, double nu) {
 	return k * nu / ((1 + nu) * (1 - 2 * nu));
+	//return 1;
 }
 
 dmat2 computeStressDifferentials(dmat2 F, dmat2 deltaF, Element &element) {
 	dmat2 E = 0.5 * (transpose(F) * F - dmat2(1.0));
 	dmat2 deltaE = 0.5 * (transpose(deltaF) * F + transpose(F) * deltaF);
 
-	double trace = computeTrace(E);
-	dmat2 deltaP = deltaF * (2 * element.mu * E + element.lambda * trace * dmat2(1.0))
-		+ F * (2 * element.mu * deltaE + element.lambda * deltaE * dmat2(1.0));
+	//printf("E\n");
+	//print2x2Matrix(E);
+	//printf("deltaE\n");
+	//print2x2Matrix(deltaE);
+
+	//printf("MU: %f\n", element.mu);
+	//printf("Lambda: %f\n", element.lambda);
+	//printf("TraceE: %f\n", computeTrace(E));
+
+	dmat2 deltaP = deltaF * (2 * element.mu * E + element.lambda *  computeTrace(E) * dmat2(1.0))
+		+ F * (2 * element.mu * deltaE + element.lambda * computeTrace(deltaE) * dmat2(1.0));
 	return deltaP;
 }
 
@@ -94,6 +107,12 @@ void computeForceDifferentials(VectorXd &pointVector,
 	vector<dmat2> &referenceInv,
 	vector<double> &undeformedVol) {
 
+	//printf("dx\n");
+	//std::string sep = "\n----------------------------------------\n";
+	//IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
+	//std::cout << dx.format(CleanFmt) << sep;
+
+
 	for (size_t i = 0; i < eleVector.size(); i++) {
 
 		dvec2 p1 = dvec2(pointVector(eleVector[i].i * 2), pointVector(eleVector[i].i * 2 + 1));
@@ -104,6 +123,12 @@ void computeForceDifferentials(VectorXd &pointVector,
 		deformedShape[0] = p1 - p3;
 		deformedShape[1] = p2 - p3;
 
+		//printf("referenceInv\n");
+		//print2x2Matrix(referenceInv[i]);
+
+		//printf("deformedShape\n");
+		//print2x2Matrix(deformedShape);
+
 		dvec2 dx1 = dvec2(dx(eleVector[i].i * 2), dx(eleVector[i].i * 2 + 1));
 		dvec2 dx2 = dvec2(dx(eleVector[i].j * 2), dx(eleVector[i].j * 2 + 1));
 		dvec2 dx3 = dvec2(dx(eleVector[i].k * 2), dx(eleVector[i].k * 2 + 1));
@@ -112,13 +137,25 @@ void computeForceDifferentials(VectorXd &pointVector,
 		deltaDs[0] = dx1 - dx3;
 		deltaDs[1] = dx2 - dx3;
 
+		//printf("deltaDs\n");
+		//print2x2Matrix(deltaDs);
+
 		dmat2 deformationMatrix = deformedShape * referenceInv[i];
 
+		//printf("deformationMatrix\n");
+		//print2x2Matrix(deformationMatrix);
+
 		dmat2 deltaF = deltaDs * referenceInv[i];
+		//printf("deltaF\n");
+		//print2x2Matrix(deltaF);
 
 		dmat2 deltaP = computeStressDifferentials(deformationMatrix, deltaF, eleVector[i]);
+		//printf("StressDifferencials\n");
+		//print2x2Matrix(deltaP);
 
 		dmat2 deltaH = -1 * undeformedVol[i] * deltaP * transpose(referenceInv[i]);
+		//printf("deltaH:\n");
+		//print2x2Matrix(deltaH);
 
 		df(eleVector[i].i * 2) += deltaH[0][0];
 		df(eleVector[i].i * 2 + 1) += deltaH[0][1];
@@ -132,6 +169,12 @@ void computeForceDifferentials(VectorXd &pointVector,
 
 void computeElasticForcesEigen(VectorXd &forceVector, VectorXd &pointVector, vector<Element> &eleVector, vector<dmat2> &referenceInv, vector<double> &undeformedVol) {
 	forceVector.fill(0);
+	for (size_t i = 0; i < pointVector.size(); i++) {
+		if (i % 2 == 1) {
+			forceVector(i) -= config::gravity;
+		}
+
+	}
 
 	for (size_t i = 0; i < eleVector.size(); i++) {
 		dvec2 p1 = dvec2(pointVector(eleVector[i].i * 2), pointVector(eleVector[i].i * 2 + 1));
@@ -150,12 +193,13 @@ void computeElasticForcesEigen(VectorXd &forceVector, VectorXd &pointVector, vec
 
 		forceVector(eleVector[i].i * 2) += forces[0][0];
 		forceVector(eleVector[i].i * 2 + 1) += forces[0][1];
+		forceVector(eleVector[i].j * 2) += forces[1][0];
 		forceVector(eleVector[i].j * 2 + 1) += forces[1][1];
+		forceVector(eleVector[i].k * 2) -= (forces[0] + forces[1])[0];
 		forceVector(eleVector[i].k * 2 + 1) -= (forces[0] + forces[1])[1];
 	}
-
 }
 
-void AsecondTerm(VectorXd &dst, const VectorXd &rhs, MatrixXd &M, double delta_t) {
-	dst = 1.0 / (delta_t * delta_t) * M * rhs;
+void AddSecondTerm(VectorXd &dst, const VectorXd &rhs, MatrixXd &M, double delta_t) {
+	dst += 1.0 / (delta_t * delta_t) * M * rhs;
 }

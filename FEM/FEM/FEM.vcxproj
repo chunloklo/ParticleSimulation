@@ -129,6 +129,7 @@
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Force.h" />
     <ClInclude Include="FEMProcedure.h" />
     <ClInclude Include="Integrator.h" />
